@@ -35,8 +35,8 @@ export class Device {
 
     let parsed: {
       weight: number
-      peak: number
-      rms: number
+      peakAccel: number
+      rmsAccel: number
       frequency: number
     }
 
@@ -47,10 +47,15 @@ export class Device {
       this.ws.send(JSON.stringify({ error: "Invalid JSON" }))
       return
     }
+    // {"weight":0.89,"peakAccel":0.000,"rmsAccel":0.000,"frequency":0.00}
+    const { weight, peakAccel, rmsAccel, frequency } = parsed
 
-    const { weight, peak, rms, frequency } = parsed
-
-    if (!Number.isFinite(weight) || !Number.isFinite(peak) || !Number.isFinite(rms) || !Number.isFinite(frequency)) {
+    if (
+      !Number.isFinite(weight) ||
+      !Number.isFinite(peakAccel) ||
+      !Number.isFinite(rmsAccel) ||
+      !Number.isFinite(frequency)
+    ) {
       this.ws.send(
         JSON.stringify({
           error: "Invalid sensor values",
@@ -59,14 +64,14 @@ export class Device {
       return
     }
 
-    const status = weight > 150 || rms > 0.15 ? "DANGER" : weight > 130 || rms > 0.08 ? "WARNING" : "SAFE"
+    const status = weight > 150 || rmsAccel > 0.15 ? "DANGER" : weight > 130 || rmsAccel > 0.08 ? "WARNING" : "SAFE"
 
     const record = await db.records.create({
       data: {
         bridgeId: this.id,
         weight,
-        peakAccel: peak,
-        rmsAccel: rms,
+        peakAccel: peakAccel,
+        rmsAccel: rmsAccel,
         frequency,
         status,
       },
@@ -92,11 +97,11 @@ export class Device {
 
     console.log(
       `Bridge ${this.id}
-Weight: ${weight}
-Peak: ${peak}
-RMS: ${rms}
-Frequency: ${frequency} Hz
-Status: ${status}`
+      Weight: ${weight}
+      Peak: ${peakAccel}
+      RMS: ${rmsAccel}
+      Frequency: ${frequency} Hz
+      Status: ${status}`
     )
   }
 
