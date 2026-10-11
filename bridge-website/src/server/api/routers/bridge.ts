@@ -74,8 +74,13 @@ export const bridgeRouter = createTRPCRouter({
           createdAt: "asc",
         },
         select: {
+          id: true,
           createdAt: true,
           weight: true,
+          peakAccel: true,
+          rmsAccel: true,
+          frequency: true,
+          status: true,
         },
         take: 1000,
       });

@@ -12,10 +12,24 @@ export async function GET() {
           try {
             const weight = Math.floor(Math.random() * 301) + 100;
 
+            const peakAccel = Number((Math.random() * 0.08).toFixed(3));
+            const rmsAccel = Number((peakAccel * 0.707).toFixed(3));
+            const frequency = Number((Math.random() * 12 + 1).toFixed(2));
+            const status =
+              weight > 150 || rmsAccel > 0.15
+                ? "DANGER"
+                : weight > 130 || rmsAccel > 0.08
+                  ? "WARNING"
+                  : "SAFE";
+
             await db.records.create({
               data: {
                 bridgeId: "cmncwvehk0000kxhogldfmffq",
                 weight,
+                peakAccel,
+                rmsAccel,
+                frequency,
+                status,
               },
             });
 

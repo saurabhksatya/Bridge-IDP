@@ -4,12 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useWebSocket } from "@/contexts/websocket-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, AlertTriangle, Activity, Network } from "lucide-react";
+import { CheckCircle, AlertTriangle, Activity, Network, Waves } from "lucide-react";
 import type { Records } from "generated/prisma";
 
 interface LiveRecord {
   bridgeId: string;
   weight: number;
+  peakAccel?: number;
+  rmsAccel?: number;
+  frequency?: number;
+  status?: string;
   createdAt: string;
   id: string;
 }
@@ -241,7 +245,7 @@ export function BridgeLiveDashboard({ bridges }: Props) {
                       <div className="flex items-center justify-between">
                         <span className="flex items-center gap-1 text-sm text-gray-500">
                           <Activity className="h-4 w-4" />
-                          Last reading
+                          Last Load reading
                         </span>
                         <span className="text-sm font-semibold text-gray-900">
                           {lastRecord
@@ -249,6 +253,30 @@ export function BridgeLiveDashboard({ bridges }: Props) {
                             : "No readings yet"}
                         </span>
                       </div>
+
+                      {lastRecord && "frequency" in lastRecord && lastRecord.frequency != null && (
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1 text-sm text-gray-500">
+                            <Waves className="h-4 w-4 text-indigo-500" />
+                            Vibration Freq
+                          </span>
+                          <span className="text-sm font-semibold text-indigo-700">
+                            {Number(lastRecord.frequency).toFixed(2)} Hz
+                          </span>
+                        </div>
+                      )}
+
+                      {lastRecord && "rmsAccel" in lastRecord && lastRecord.rmsAccel != null && (
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1 text-sm text-gray-500">
+                            <Activity className="h-4 w-4 text-emerald-500" />
+                            RMS / Peak Accel
+                          </span>
+                          <span className="text-sm font-mono text-xs font-semibold text-gray-800">
+                            {Number(lastRecord.rmsAccel).toFixed(3)}g / {Number(("peakAccel" in lastRecord && lastRecord.peakAccel) || 0).toFixed(3)}g
+                          </span>
+                        </div>
+                      )}
 
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-500">
